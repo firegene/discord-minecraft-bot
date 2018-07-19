@@ -1,6 +1,6 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
-let ms = require(./minestat);
+let ms = require("./minestat");
 let prefix = ".";
 
 client.on("ready", () => {
