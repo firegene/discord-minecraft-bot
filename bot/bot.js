@@ -4,12 +4,12 @@ let ms = require("./minestat");
 let prefix = ".";
 
 client.on("ready", () => {
-  console.log("Logged in as ${client.user.tag}");
+  console.log(`Logged in as ${client.user.tag}`);
 });
 
 client.on("message", (msg) => {
 
- const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
+ const args = msg.content.slice(prefix.length).trim().split(/ +/g);
  const command = args.shift().toLowerCase();
  
   if (command === "server") {
@@ -18,7 +18,7 @@ client.on("message", (msg) => {
   console.log("Minecraft server status of " + ms.address + " on port " + ms.port + ":");
   if(ms.online)
   {
-    msg.channel.send("**Server status:** online\n**Server version:** ${ms.version}\n**Players:** ${ms.current_players}/${ms.max_players}")
+    msg.channel.send(`**Server status:** online\n**Server version:** ${ms.version}\n**Players:** ${ms.current_players}/${ms.max_players}\n**Server icon:**`, new Discord.Attachment('https://api.minetools.eu/favicon/198.50.141.83/25565', 'file.jpg'));
   }
   else
   {
@@ -28,4 +28,4 @@ client.on("message", (msg) => {
   }
 });
 
-client.login("token");
+client.login('token');
