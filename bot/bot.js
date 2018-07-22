@@ -9,12 +9,13 @@ client.on("ready", () => {
 });
 
 client.on("message", async (msg) => {
-
+ if (msg.author.bot) return;
+ if (msg.content.indexOf(prefix) !== 0) return;
  const args = msg.content.slice(prefix.length).trim().split(/ +/g);
  const command = args.shift().toLowerCase();
  
   if (command === "server") {
-    ms.init('ip', port, function(result)
+    ms.init('198.50.141.83', 25565, function(result)
 {
   console.log("Minecraft server status of " + ms.address + " on port " + ms.port + ":");
   if(ms.online)
@@ -32,7 +33,7 @@ if(command === "phistory") {
   const res = await snekfetch.get(`https://api.mojang.com/users/profiles/minecraft/${args[0]}`);
   let id = res.body.id
   const his = await snekfetch.get(`https://api.mojang.com/user/profiles/${id}/names`);
-  let map = his.body.map(o => o.name + ' : [' + (o.changedToAt === undefined ? 'CURRENT NAME' : new Date(o.changedToAt).toDateString()) + ']')
+  let map = his.body.sort().map(o => o.name + ' : [' + (o.changedToAt === undefined ? 'CURRENT NAME' : new Date(o.changedToAt).toDateString()) + ']')
   msg.channel.send(map)
     .catch(error => {
     msg.channel.send("The username provided is incorrect.")
