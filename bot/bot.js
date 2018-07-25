@@ -27,7 +27,7 @@ client.on("message", async (msg) => {
     const res = await snekfetch.get(`https://api.mojang.com/users/profiles/minecraft/${args[0]}`);
     let id = res.body.id
     const his = await snekfetch.get(`https://api.mojang.com/user/profiles/${id}/names`);
-    let map = his.body.sort().map(o => o.name + ' : [' + (o.changedToAt === undefined ? 'CURRENT NAME' : new Date(o.changedToAt).toDateString()) + ']')
+    let map = his.body.reverse().map(o => o.name + ' : [' + (o.changedToAt === undefined ? 'ORIGINAL NAME' : new Date(o.changedToAt).toDateString()) + ']')
     msg.channel.send(map)
       .catch(error => {
         msg.channel.send("The username provided is incorrect.")
