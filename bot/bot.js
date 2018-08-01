@@ -2,7 +2,18 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 let ms = require("./minestat");
 const snekfetch = require('snekfetch');
+const rp = require('request-promise');
+const cheerio = require('cheerio');
 let prefix = "!";
+
+let content;
+let time;
+let linktail; 
+let link;
+let details;
+let filter; 
+let title; 
+let author;
 
 client.on("ready", () => {
   console.log(`Logged in as ${client.user.tag}`);
@@ -89,7 +100,9 @@ if(command === "phistory") {
 };
   
 if(command === "vote") {
-msg.channel.send({
+msg.channel.send(
+  //change from here
+  {
   "embed": {
     "color": 1234643,
     "author": {
@@ -103,7 +116,9 @@ msg.channel.send({
       }
     ]  
   }
-})
+}
+//to here if you add more vote links
+)
 }
   
 if (command === 'ban') {
@@ -138,6 +153,73 @@ try{
     msg.channel.send("Someone doesn't have enough permissions :thinking:");
 };
 }
+  if(command === "help") {
+    msg.channel.send({
+  "embed": {
+    "color": 1234643,
+    "author": {
+      "name": "Help Menu"
+     },
+    "fields": [
+      {
+        "name": "Server Commands",
+        "value": "**server** - gives current info about the server.\n**phistory <name>** - lists every name a player has used\n**news** - gets the most recent post from news and announcements\n**vote** - gives all voting links"
+      },
+      {
+        "name": "Bot Commands",
+        "value": "**botping** - gives the current ping of the bot"
+      },
+      {
+        "name": "Moderation Commands ",
+        "value": "**kick <id>** - kicks a user from the discord\n**ban <id>** - bans a user from the discord"
+      }
+    ]
+  }
+})
+  };
+  
+  if(command === "news") {
+    const options = {
+  uri: `https://www.swancraftmc.com/forum/m/39419318/viewforum/7509935`,
+  transform: function (body) {
+    return cheerio.load(body);
+  }
+};
+
+rp (options)
+  .then(async ($) => {
+    let content = await $('table.structure.small-cells > tr.row.first.normal > td.c.thread').attr('data-post')
+    let time = await $('table.structure.small-cells > tr.row.first.normal > td.c.thread').attr('data-time')
+    let linktail = await $('table.structure.small-cells > tr.row.first.normal > td.c.thread > a.thread-view.thread-subject').attr('href')
+    let link = `https://www.swancraftmc.com/${linktail}`
+    let details = await $('table.structure.small-cells > tr.row.first.normal > td.c.thread').text().split('\n')
+    let filter = await details.filter(i => i)
+    let title = await filter[0];
+    let author = await filter[1].replace(/\(.*/, "");
+    msg.channel.send({
+  "embed": {
+    "description": `[${title}](${link})`,
+    "color": 1234643,
+    "footer": {
+      "text": time
+    },
+    "author": {
+      "name": "News and Announcements",
+      "url": "https://www.swancraftmc.com/forum/m/39419318/viewforum/7509935"
+    },
+    "fields": [
+      {
+        "name": author,
+        "value": content
+      }
+    ]
+  }
+})
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+  };
 });
 
-client.login('token');
+client.login(token);
