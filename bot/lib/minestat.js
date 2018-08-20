@@ -21,13 +21,13 @@
 // For use with Node.js
 
 const NUM_FIELDS = 6;   // number of values expected from server
-address = null;
-port = null;
-online = null;          // online or offline?
-version = null;         // server version
-motd = null;            // message of the day
-current_players = null; // current number of players online
-max_players = null;     // maximum player capacity
+let address = null;
+let port = null;
+let online = null;          // online or offline?
+let version = null;         // server version
+let motd = null;            // message of the day
+let current_players = null; // current number of players online
+let max_players = null;     // maximum player capacity
 
 module.exports =
 {
@@ -102,6 +102,7 @@ module.exports =
 
       // Uncomment the line below for more details pertaining to network errors.
       //console.log(err);
-    });
+     });
   }
 };
+
