@@ -1,0 +1,29 @@
+{
+  "name": "discord-minecraft-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bot/bot.js",
+  "scripts": {
+    "start": "node bot/bot.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/firegene/discord-minecraft-bot.git"
+  },
+  "author": "firegene",
+  "license": "",
+  "bugs": {
+    "url": "https://github.com/firegene/discord-minecraft-bot/issues"
+  },
+  "homepage": "https://github.com/firegene/discord-minecraft-bot#readme",
+  "dependencies": {
+    "discord.js": "^11.3.2",
+    "snekfetch": "^4.0.4",
+    "express": "^4.16.3",
+    "cheerio": "^0.22.0",
+    "request-promise": "^4.2.2",
+    "request": "^2.87.0",
+    "enmap": "^2.7.0",
+    "enmap-level": "^2.1.0"
+  }
+}
