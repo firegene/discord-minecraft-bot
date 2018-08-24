@@ -59,8 +59,10 @@ app.post("/submitPosts", function(request, response){
     
     let posts = request.body.posts;
 
-    myTable.set("lastVolunteerKey", key);
-    myTable.set("posts", posts);
+    // Important note: enmap-level saves as string, and will only automatically parse arrays and objects
+    myTable.set("lastVolunteerKey", key); // string
+    myTable.set("posts", posts); // array
+    myTable.set("date", new Date().getTime()); // Number, becomes a string
 
     response.status(200).json(posts);
 });
@@ -89,4 +91,10 @@ module.exports.getPosts = function(){
 
 module.exports.getBlame = function(){
     return myTable.get("lastVolunteerKey");
+};
+module.exports.getBlameDate = function(){
+    // Stored as a number converted to a string
+    let value = myTable.get("date");
+    let date = new Date(Number(value));
+    return date;
 };

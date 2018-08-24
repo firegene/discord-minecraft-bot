@@ -27,10 +27,6 @@ function serverStatus(msg, args, command, client) {
                         {
                             "name": "Server version",
                             "value": ms.version
-                        },
-                        {
-                            "name": "Players",
-                            "value": `${ms.current_players}/${ms.max_players}`
                         }
                     ]
                 }

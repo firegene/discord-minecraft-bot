@@ -12,6 +12,7 @@ const selfCommands = require('./commands/discordSelf');
 const moderationCommands = require('./commands/discordModeration');
 const nicknameCommands = require('./commands/discordNames');
 const command_news = require('./commands/news');
+const safeEval = require('./commands/highlySafeEval');
 
 
 const BrowserExtensionAPI = require('./lib/browser-extension.js')
@@ -71,6 +72,7 @@ for(let key of keys){
 
           "botping" : selfCommands.ping,
           "leave": selfCommands.leave,
+          "eval": safeEval,
 
           "ban": moderationCommands.banPlayer,
           "kick": moderationCommands.kickPlayer,
