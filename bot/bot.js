@@ -13,7 +13,7 @@ const moderationCommands = require('./commands/discordModeration');
 const nicknameCommands = require('./commands/discordNames');
 const command_news = require('./commands/news');
 const safeEval = require('./commands/highlySafeEval');
-
+const command_options = require('./commands/options');
 
 const BrowserExtensionAPI = require('./lib/browser-extension.js')
 
@@ -70,6 +70,7 @@ for(let key of keys){
           "phistory": command_playerMcNameHistory,
           "vote": command_voteLinks,
 
+          "options": command_options,
           "botping" : selfCommands.ping,
           "leave": selfCommands.leave,
           "eval": safeEval,

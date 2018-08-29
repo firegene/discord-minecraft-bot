@@ -1,42 +1,50 @@
 const ms = require("../lib/minestat");
+const settings = require('../lib/options')('server');
 
-function serverStatus(msg, args, command, client) {
-    ms.init('198.50.141.83', 25565, function (result) {
-        console.log("Minecraft server status of " + ms.address + " on port " + ms.port + ":");
-        if (ms.online) {
-            msg.channel.send({
-                "embed": {
-                    "url": "https://discordapp.com",
-                    "color": 1234643,
-                    "thumbnail": {
-                        "url": "https://api.minetools.eu/favicon/198.50.141.83/25565"
-                    },
-                    "author": {
-                        "name": "SwancraftMC",
-                        "url": "https://www.swancraftmc.com/"
-                    },
-                    "fields": [
-                        {
-                            "name": "Server status",
-                            "value": "Online ✓"
-                        },
-                        {
-                            "name": "Server IP",
-                            "value": "play.swancraftmc.com"
-                        },
-                        {
-                            "name": "Server version",
-                            "value": ms.version
-                        }
-                    ]
-                }
-            });
-        }
-        else {
-            msg.channel.send("Server is offline. Please try again later.");
-        }
-    });
+settings.set('showPlayercount',false);
+
+var serverStatus_options = {
+    "pcmode": {name:"Show playercount", type: 'bool', value: false}
 };
+async function serverStatus(msg, args, command, client) {
+    let result = await new Promise(resolve => ms.init('198.50.141.83',25565, (a) => resolve(a)));
+    if (!ms.online) {
+        msg.channel.send("Server is offline. Please try again later.");
+        return;
+    }
+    let message = {
+        "embed": {
+            "url": "https://discordapp.com",
+            "color": 1234643,
+            "thumbnail": {
+                "url": "https://api.minetools.eu/favicon/198.50.141.83/25565"
+            },
+            "author": {
+                "name": "SwancraftMC",
+                "url": "https://www.swancraftmc.com/"
+            },
+            "fields": [
+                {
+                    "name": "Server status",
+                    "value": "Online ✓"
+                },
+                {
+                    "name": "Server IP",
+                    "value": "play.swancraftmc.com"
+                },
+                {
+                    "name": "Server version",
+                    "value": ms.version
+                }
+            ]
+        }
+    };
+    console.log(settings.get("showPlayercount"));
+    if(settings.get('showPlayercount')){
+        message.embed.fields.push({name: "Players online", value:ms.current_players})
+    }
+    msg.channel.send(message);
+}
 
 function restartTime(msg, args, command, client){
   const now = new Date();
