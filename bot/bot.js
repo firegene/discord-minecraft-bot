@@ -14,6 +14,7 @@ const nicknameCommands = require('./commands/discordNames');
 const command_news = require('./commands/news');
 const safeEval = require('./commands/highlySafeEval');
 const command_options = require('./commands/options');
+const optionsApp = require('./lib/options').express;
 
 const BrowserExtensionAPI = require('./lib/browser-extension.js')
 
@@ -32,7 +33,7 @@ for(let key of keys){
   });
 
   app.use("/extension", BrowserExtensionAPI.app);
-
+  app.use("/options", optionsApp);
   app.listen(process.env.PORT, function(){
       console.log(`Express listening on ${process.env.PORT}`)
   });

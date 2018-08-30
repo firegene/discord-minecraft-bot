@@ -8,7 +8,7 @@ function optionsCommand(msg, args, command, client){
     switch(subcommand){
         case 'list':
             let message = ["."];
-            for(let key of Object.keys(options.all)){
+            for(let key of options.all()){
                 message.push(`**${key}**`);
                 for(let subkey of options(key).list()){
                     message.push(`${subkey}: ${JSON.stringify(options(key).get(subkey))}`)
@@ -18,8 +18,12 @@ function optionsCommand(msg, args, command, client){
             return;
 
         case 'set':
-            options(namespace).set(name, JSON.parse(value));
-            msg.channel.send("Option set successfully");
+            try{
+                options(namespace).set(name, JSON.parse(value));
+                msg.channel.send("Option set successfully");
+            } catch (e) {
+                msg.channel.send(`Could not set option: ${e}`);
+            }
             return;
 
         case 'get':

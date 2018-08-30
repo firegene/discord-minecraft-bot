@@ -1,7 +1,7 @@
 const ms = require("../lib/minestat");
 const settings = require('../lib/options')('server');
 
-settings.set('showPlayercount',false);
+settings.define('showPlayercount','boolean', false);
 
 var serverStatus_options = {
     "pcmode": {name:"Show playercount", type: 'bool', value: false}
