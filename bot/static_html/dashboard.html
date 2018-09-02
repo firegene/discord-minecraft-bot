@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+        <link href="dashboard.css" rel="stylesheet"/>
+
+        <template id="booleanOption">
+            <input type="checkbox" class="value"/> <label class="text"></label>
+        </template>
+        <template id="numberOption">
+            <input type="number" class="value"/> <label class="text"></label>
+        </template>
+        <template id="stringOption">
+            <input type="text" class="value"/> <label class="text"></label>
+        </template>
+    </head>
+
+    <body>
+        <div class="container master">
+
+        </div>
+        <div class="container">
+            <button onclick="save();">Save</button>
+            <p id="error-success"></p>
+        </div>
+
+    </body>
+
+    <script src="dashboard.js"></script>
+</html>

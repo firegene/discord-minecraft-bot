@@ -2,8 +2,8 @@ var namespaces = {};
 
 var filters = {
     'boolean': (val) => {if(typeof val !== 'boolean') throw 'Value must be boolean'; return val},
-    'numeric':  (val) => {if(typeof val !== 'number') throw 'Value must be a number'; return val},
-    'string':  (val) => {if(typeof val === 'string') throw 'Value must be a string'; return val},
+    'number':  (val) => {if(typeof val !== 'number') throw 'Value must be a number'; return val},
+    'string':  (val) => {if(typeof val !== 'string') throw 'Value must be a string'; return val},
 };
 
 function getOptionsManager(namespace){
@@ -71,7 +71,7 @@ try {
             return sendError(e, res);
         }
         res.contentType("application/json");
-        res.send(options.get(optionName));
+        res.send(200, options.get(optionName));
     });
     app.get('/:namespace/:option', (req, res) => {
         res.contentType("application/json");

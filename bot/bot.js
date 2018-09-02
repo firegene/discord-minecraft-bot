@@ -31,7 +31,14 @@ for(let key of keys){
   app.get('/ping', function (req, res) {
       res.send('I am running!');
   });
-
+  /** Disable caching to make sure updates to the code show up in the browser*/
+  app.use("/", (req, res, next) => {
+    res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+    res.header('Expires', '-1');
+    res.header('Pragma', 'no-cache');
+    next();
+  });
+  app.use("/static", express.static('./bot/static_html'));
   app.use("/extension", BrowserExtensionAPI.app);
   app.use("/options", optionsApp);
   app.listen(process.env.PORT, function(){
