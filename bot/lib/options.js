@@ -1,3 +1,9 @@
+const Enmap = require('enmap');
+const EnmapLevel = require('enmap-level');
+const tableSource = new EnmapLevel({name: "Options"});
+const myTable = new Enmap({provider: tableSource});
+let isReady = myTable.fetchEverything(); // Extremely important, three hours were wasted on this
+
 var namespaces = {};
 
 var filters = {
@@ -12,14 +18,25 @@ function getOptionsManager(namespace){
     }
     var options = {};
     let closure = {
-        define: (name, type, value) => {
+      define: async (name, type, value) => {
+            await isReady; // Extremely important
+            name = name.toLowerCase();
             let filter = filters[type];
             filter(value); // Test if valid
-            options[name.toLowerCase()] = {type: type, val:value, filters:[]};
+
+            if(!myTable.has(namespace)){
+              myTable.set(namespace, {});
+            }
+
+            if(!myTable.hasProp(namespace, name)){
+              myTable.setProp(namespace, name, value);
+            }
+
+            options[name] = {type: type, filters:[]};
         },
 
         addFilter: (name, check, errorMessage) => options[name].filters.push((val) => {
-            if(!check){
+            if(!check(val)){
                 throw errorMessage;
             }
         }),
@@ -33,10 +50,10 @@ function getOptionsManager(namespace){
             for(let check of options[name].filters){
                 check(val); // Check custom filters
             }
-            options[name].val = val;
+            myTable.setProp(namespace, name, val);
         },
 
-        get: (name) => options[name.toLowerCase()].val,
+        get: (name) => myTable.getProp(namespace, name.toLowerCase()),
         type: (name) => options[name.toLowerCase()].type,
 
         list: () => Object.keys(options)
