@@ -13,10 +13,10 @@ function showNews(msg, args, command, client) {
   }
   if (args[0] === "all") {
     let out = "All news on the first page:\n";
-    let index = 1
+    let index = 1;
     for (let post of posts) {
-      out += `\n**[${index}]** ${post.title.replace("\n","")}`;
-      index ++
+      out += `\n**[${index}]** ${post.title.replace("\n", "")}`;
+      index++
     }
     msg.channel.send(out);
     return;
@@ -25,19 +25,19 @@ function showNews(msg, args, command, client) {
     function isNumeric(n) {
       return !isNaN(parseFloat(n)) && isFinite(n);
     }
-    
+
     if (Number.isInteger(args[1])) {
-      msg.channel.send('Please specify which article to display.')
+      msg.channel.send('Please specify which article to display.');
       return;
     }
     let index = Number(args[1]) - 1;
-    if(args[1] < 1 || posts.length < args[1]) {
-      msg.channel.send(`Please specify a valid article to display. There are currently ${posts.length} news articles on the first page.`)
+    if (args[1] < 1 || posts.length < args[1]) {
+      msg.channel.send(`Please specify a valid article to display. There are currently ${posts.length} news articles on the first page.`);
       return;
     }
-    
-    
-    if(isNaN(index)) {
+
+
+    if (isNaN(index)) {
       msg.channel.send(`Please specify a valid article to display. There are currently ${posts.length} news articles on the first page.`)
     }
     var post = posts[index];
@@ -57,27 +57,9 @@ function showNews(msg, args, command, client) {
           "value": post.content
         }]
       }
-    })
+    });
     return;
   }
-  
-  /*msg.channel.send({
-    "embed": {
-      "description": `[${posts[0].title}](${posts[0].link})`,
-      "color": 1234643,
-      "footer": {
-        "text": posts[0].time
-      },
-      "author": {
-        "name": "News and Announcements",
-        "url": "https://www.swancraftmc.com/forum/m/39419318/viewforum/7509935"
-      },
-      "fields": [{
-        "name": posts[0].author,
-        "value": posts[0].content
-      }]
-    }
-  })*/
 }
 
 module.exports = showNews;
