@@ -15,7 +15,7 @@ const command_news = require('./commands/news');
 const safeEval = require('./commands/highlySafeEval');
 const command_options = require('./commands/options');
 const optionsApp = require('./lib/options').express;
-
+const NSFW = require('./lib/nsfw-filter');
 const BrowserExtensionAPI = require('./lib/browser-extension.js');
 
 
@@ -57,13 +57,21 @@ client.on("message", async (msg) => {
   if (msg.author.bot) return;
 
   // Instaban any users who post NSFW
-  let msgContainsNSFW = nsfw.some(word => msg.content.toLowerCase().includes(word));
-  if (msg.author.bannable && msgContainsNSFW) {
+  let msgContainsBlacklistedWord = nsfw.some(word => msg.content.toLowerCase().includes(word));
+  if (msg.author.bannable && msgContainsBlacklistedWord) {
     msg.delete();
     msg.guild.ban(msg.author);
     return;
   }
-
+  let clarifaiRating = 0;
+  let embeds = msg.embeds.filter(e => e.type === 'image').map(e => e.url).concat(msg.attachments.map(a => a.url));
+  if (embeds.length > 0) {
+    let ratings = await NSFW(embeds);
+    clarifaiRating = Math.max.apply(this, ratings);
+  }
+  if(clarifaiRating > 0.5){
+    // TODO: Inform the admins or something;
+  }
   // Ignore any messages that don't start with the prefix
   if (msg.content.indexOf(prefix) !== 0) return;
 
