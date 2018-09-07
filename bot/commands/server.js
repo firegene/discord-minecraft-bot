@@ -59,6 +59,7 @@ function restartTime(msg, args, command, client){
       throw "Something's wrong with the restart time calculation!";
     }
   }
+  // AT THIS POINT, "next" CONTAINS THE DATETIME OF THE NEXT RESTART
   
   let diff = next.getTime() - now.getTime();
   let seconds = (diff / 1000);
@@ -73,11 +74,11 @@ function restartTime(msg, args, command, client){
   hours = Math.floor(hours);
 
   if(hours > 0){
-    msg.channel.send(`The next restart is in ${hours}:${minutes}:${seconds}`);
+    msg.channel.send(`The next restart is in ${hours} hours, ${minutes} minutes and ${seconds} seconds.`);
     return;
   }
   if(minutes > 0){
-    msg.channel.send(`The next restart is in ${minutes}:${seconds}`);
+    msg.channel.send(`The next restart is in ${minutes} minutes and ${seconds} seconds.`);
     return;
   }
   if(seconds > 0){

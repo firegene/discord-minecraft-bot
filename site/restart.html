@@ -1,0 +1,74 @@
+<html>
+  <head>
+    <title>Restart timer</title><!-- Display the countdown timer in an element -->
+    <link rel="icon" href="https://files-cloud.enjin.com/1262543/site_logo/favicon.ico?timestamp=1488416148" />
+  </head>
+  <body>
+    
+    <p id="demo"></p>
+  </body>
+    
+<style> /*how would i set a favicon?*/
+  body {
+    display: flex;
+    justify-content: center; /* Direction of "rows" */
+    align-items: center; /* Across the direction of "rows" */
+    align-content: center; /* group multiple "rows" together in the center */
+    
+  }
+  p#demo {
+    text-align: center; 
+    text-shadow: 2px 3px grey; 
+    font-size: 5em; /* use the 'em' unit for font sizes */ /*em unit?*/
+    /* EM is a relative font size - the default font is 1em */
+  }
+</style>
+<script>
+// Set the date we're counting down to
+  const now = new Date();
+  // A specific restart's time - we can't compare the hours directly because timezones exist
+  let next = new Date(1534809600000); 
+  // That same time, but yesterday, there must have been a restart, let's set 'next' to be that restart from yesterday
+  next.setYear(now.getYear()+1900) // add 1900 because getYear gives us years since UNIX epoch, while getYear expects a full year
+  next.setMonth(now.getMonth())
+  next.setDate(now.getDate()-1); // Yesterday to make sure the new moment is in the past
+  
+  let limit = 10;
+  // Keep moving forward by 12 hours until we reach a restart that hasn't occured yet
+  while (next < now) {
+    next.setTime(next.getTime() + 1000 * 60 * 60 * 12);
+    limit -= 1;
+    if(limit == 0){
+      throw "Something's wrong with the restart time calculation!";
+    }
+  }
+
+var countDownDate = new Date(next).getTime();
+
+// Update the count down every 1 second
+var x = setInterval(function() {
+
+  // Get todays date and time
+  var now = new Date().getTime();
+
+  // Find the distance between now and the count down date
+  var distance = countDownDate - now;
+
+  // Time calculations for days, hours, minutes and seconds
+  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+  // Display the result in the element with id="demo"
+  document.getElementById("demo").innerHTML = hours + "h "
+  + minutes + "m " + seconds + "s ";
+
+  // If the count down is finished, write some text 
+  if (distance < 0) {
+    clearInterval(x);
+    document.getElementById("demo").innerHTML = "EXPIRED";
+  }
+}, 1000);
+</script>
+</html>

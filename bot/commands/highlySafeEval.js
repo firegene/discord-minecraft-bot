@@ -11,14 +11,14 @@ return result.then(output => {
  if (output.includes(client.token)) output = output.replace(client.token, 'Not for your eyes');
  if (output.length > 1990) console.log(output), output = 'Too long to be printed (content got console logged)';
 
- return msg.edit(output, {code: 'js'});
+ return msg.channel.send(output, {code: 'js'});
 }).catch(err => {
  console.error(err);
  err = err.toString();
 
  if (err.includes(client.token)) err = err.replace(client.token, 'Not for your eyes');
 
- return msg.edit(err, {code: 'js'});
+ return msg.channel.send(err, {code: 'js'});
 });
 }
 

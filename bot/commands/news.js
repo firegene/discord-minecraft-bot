@@ -61,7 +61,7 @@ function showNews(msg, args, command, client) {
     return;
   }
   
-  /*msg.channel.send({
+  msg.channel.send({
     "embed": {
       "description": `[${posts[0].title}](${posts[0].link})`,
       "color": 1234643,
@@ -77,7 +77,7 @@ function showNews(msg, args, command, client) {
         "value": posts[0].content
       }]
     }
-  })*/
-}
+  })
+  }
 
 module.exports = showNews;

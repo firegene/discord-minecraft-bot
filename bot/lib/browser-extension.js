@@ -29,7 +29,6 @@ app.get("/heartbeat", function(request, response){
 });
 
 app.post("/submitPosts", function(request, response){
-    console.log("Request came in");
     if(request.body.API_KEY === undefined){
         response.status(401).json({
             code:"MISSING_API_KEY",
@@ -44,7 +43,6 @@ app.post("/submitPosts", function(request, response){
         });
         return;
     }
-
     // TODO: More precise checks
     let key = request.body.API_KEY;
     let valid = apiKeys.includes(key);
@@ -66,6 +64,11 @@ app.post("/submitPosts", function(request, response){
 
     response.status(200).json(posts);
 });
+  
+app.get("/submitPosts", function(request, response){
+    response.sendStatus(405);
+});
+  
 
 /**
  * Adds an API key, allowing anyone with the key to send in news updates

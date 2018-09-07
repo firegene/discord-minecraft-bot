@@ -13,10 +13,11 @@ const moderationCommands = require('./commands/discordModeration');
 const nicknameCommands = require('./commands/discordNames');
 const command_news = require('./commands/news');
 const safeEval = require('./commands/highlySafeEval');
-
+const FileReader = require('./lib/FileReader');
 
 const BrowserExtensionAPI = require('./lib/browser-extension.js')
-
+const NewsAPI = require('../api/news/news');
+const docs = require('../api/docs/docs.js')
 
 let keys = process.env.BROWSER_API_KEYS.split(" ")
 for(let key of keys){
@@ -26,17 +27,33 @@ for(let key of keys){
 
 // region express
   var app = express();
-
+  app.get('/', async function(req, res){
+    try {
+      res.send(await FileReader.read('./site/restart.html'))
+    } catch(e){
+      console.error(e);
+    }
+  });
   app.get('/ping', function (req, res) {
       res.send('I am running!');
   });
 
-  app.use("/extension", BrowserExtensionAPI.app);
+app.get('/restart', async function (req, res) {
+  try {
+    res.send(await FileReader.read('./site/restart.html'))
+  } catch(e){
+    console.error(e);
+  }
+});
 
-  app.listen(process.env.PORT, function(){
+  app.use("/extension", BrowserExtensionAPI.app);
+  app.use("/api/news", NewsAPI);
+  app.use('/', docs)
+
+app.listen(process.env.PORT, function(){
       console.log(`Express listening on ${process.env.PORT}`)
   });
-// endregion express
+// endregion express 
 
 
 // region discord
@@ -65,7 +82,6 @@ for(let key of keys){
 
       // Available commands
       const commands = {
-          "userid": (msg) => { msg.channel.send(msg.author.id);},
           "server": minecraftServerCommands.serverStatus,
           "phistory": command_playerMcNameHistory,
           "vote": command_voteLinks,
@@ -85,11 +101,11 @@ for(let key of keys){
           "name": nicknameCommands.getName,
 
           "news": command_news,
-          "restarttime": minecraftServerCommands.restartTime,
+          "restart": minecraftServerCommands.restartTime,
         
           // ADD COMMANDS HERE
         
-          "listcommands": (msg) => msg.channel.send(`\`\`\`${Object.keys(commands).join("\n")}\`\`\``),
+          "listcommands": (msg) => msg.channel.sendCode(Object.keys(commands).join("\n")),
           "help": (msg) => {
               msg.channel.send({
                   "embed": {
@@ -106,7 +122,8 @@ for(let key of keys){
                               "**news** - gets the most recent post from news and announcements\n" +
                               "**vote** - gives all voting links\n" +
                               "**name <@user>** - views the users set ingame name\n" +
-                              "**setname** - sets the users ingame name"
+                              "**setname** - sets the users ingame name\n" +
+                              "**restart** - gives the time until next server restart"
                           },
                           {
                           
