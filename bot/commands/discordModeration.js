@@ -18,7 +18,7 @@ async function banPlayer(msg, args, command, client){
     let callerHasHigherRank = msg.member.highestRole.comparePositionTo(subject.highestRole) > 0;
 
     if (!(callerHasBanPerms && subjectIsBannable && callerHasHigherRank)) {
-        msg.channel.send("Someone doesn't have enough permissions :thinking:");
+        msg.channel.send("Someone doesn't have enough permissions. :thinking:");
         return
     }
     msg.guild.ban(subject);
@@ -41,7 +41,7 @@ async function kickPlayer(msg, args, command, client){
         subject.kick();
         msg.channel.send(`I have kicked ${subject.displayName}.`);
     } else {
-        msg.channel.send("Someone doesn't have enough permissions :thinking:");
+        msg.channel.send("Someone doesn't have enough permissions .:thinking:");
     }
 }
 
@@ -61,7 +61,7 @@ async function warnPlayer(msg, args, command, client){
     let callerHasKickPerms = msg.member.hasPermission('KICK_MEMBERS');
     let callerIsHigherRank = msg.member.highestRole.comparePositionTo(subject.highestRole) > 0;
     if (!(callerHasKickPerms && callerIsHigherRank)) {
-        msg.channel.send("Someone doesn't have enough permission");
+        msg.channel.send("Someone doesn't have enough permissions. :thinking:");
         return;
     }
 
@@ -123,25 +123,34 @@ function removeWarn(msg, args, command, client){
     }
 
     let delWarnArray = myTable.get(subject.id);
-    let warnNr = parseInt(args[1]);
+    let warnNr;
+    for (let arg of args){
+      try{
+        let attempt = Number(arg);
+        if(!isNaN(attempt)){
+          warnNr = attempt;
+          break;
+        }
+      }catch(e){
+        // Ignore arguments that aren't numbers
+      }
+    }
+
+    if (warnNr === undefined || warnNr <= 0 || delWarnArray.length < warnNr) {
+        msg.channel.send("Please enter a valid warning to delete.");
+        return;
+    }
+
+
     let warnIndex = warnNr - 1;
-
-    if (warnNr === undefined) {
-        msg.channel.send("Please enter a warning to delete.");
-        return;
-    }
-    if (delWarnArray.length < warnNr) {
-        msg.channel.send("Please enter a valid warning to delete");
-        return;
-    }
-
-
     let warns = myTable.get(subject.id);
     warns.splice(warnIndex, 1);
     if (0 < warns.length) {
-        myTable.set(subject.id, warns, true);
+      myTable.set(subject.id, warns, true);
+    
     } else {
-        myTable.delete(subject.id)
+      myTable.delete(subject.id)
+    
     }
 
     msg.channel.send(`I have successfully deleted warning ${warnNr} from <@${subject.id}>`)

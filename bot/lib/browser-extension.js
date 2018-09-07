@@ -29,7 +29,6 @@ app.get("/heartbeat", function(request, response){
 });
 
 app.post("/submitPosts", function(request, response){
-    console.log("Request came in");
     if(request.body.API_KEY === undefined){
         response.status(401).json({
             code:"MISSING_API_KEY",
@@ -44,7 +43,6 @@ app.post("/submitPosts", function(request, response){
         });
         return;
     }
-
     // TODO: More precise checks
     let key = request.body.API_KEY;
     let valid = apiKeys.includes(key);
@@ -59,11 +57,18 @@ app.post("/submitPosts", function(request, response){
     
     let posts = request.body.posts;
 
-    myTable.set("lastVolunteerKey", key);
-    myTable.set("posts", posts);
+    // Important note: enmap-level saves as string, and will only automatically parse arrays and objects
+    myTable.set("lastVolunteerKey", key); // string
+    myTable.set("posts", posts); // array
+    myTable.set("date", new Date().getTime()); // Number, becomes a string
 
     response.status(200).json(posts);
 });
+  
+app.get("/submitPosts", function(request, response){
+    response.sendStatus(405);
+});
+  
 
 /**
  * Adds an API key, allowing anyone with the key to send in news updates
@@ -89,4 +94,10 @@ module.exports.getPosts = function(){
 
 module.exports.getBlame = function(){
     return myTable.get("lastVolunteerKey");
+};
+module.exports.getBlameDate = function(){
+    // Stored as a number converted to a string
+    let value = myTable.get("date");
+    let date = new Date(Number(value));
+    return date;
 };
