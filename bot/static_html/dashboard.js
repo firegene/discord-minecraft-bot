@@ -18,7 +18,7 @@ function createOption(type, value, text, update) {
         console.warn("Unknown type ",type,", loading by value anyway");
         return input.value
     }
-  }
+  };
   let setValue = type === 'boolean' ? (val) => input.checked = val : (val) => input.value = val;
 
   textElement.innerText = text;
@@ -28,6 +28,12 @@ function createOption(type, value, text, update) {
   return line;
 }
 
+function failIfError(response) {
+  if (!response.ok) {
+    throw Error(response.statusText);
+  }
+  return response;
+}
 var data;
 fetch("/options")
   .then(res => res.json())
@@ -80,7 +86,7 @@ async function save() {
     console.error(e);
     errSucc.classList.add("error");
     errSucc.classList.remove("success");
-    errSucc.textContent = "Failed to save one or more of "+resolved.length+" options";
+    errSucc.textContent = "Failed to save one or more of "+promises.length+" options";
     return;
   }
   await sleep(1000);
@@ -96,5 +102,5 @@ function updateValue(ns, option, newVal) {
       "Content-Type": "application/json; charset=utf-8",
     },
     body: JSON.stringify({value: newVal}), // body data type must match "Content-Type" header
-  })
+  }).then(failIfError);
 }

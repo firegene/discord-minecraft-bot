@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "bot/bot.js",
+
   "scripts": {
-    "start": "node bot/bot.js",
-    "debug": "node $NODE_DEBUG_OPTION bot/bot.js"
+    "start": "./before_run.sh; node bot/bot.js",
+    "debug": "./before_run.sh; node $NODE_DEBUG_OPTION bot/bot.js"
   },
   "repository": {
     "type": "git",
