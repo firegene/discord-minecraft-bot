@@ -44,7 +44,7 @@ function getOptionsManager(namespace) {
       options[name] = {type: type, filters: []};
     },
 
-    addFilter: (name, check, errorMessage) => options[name].filters.push((val) => {
+    addFilter: (name, check, errorMessage) => options[name.toLowerCase()].filters.push((val) => {
       if (!check(val)) {
         throw errorMessage;
       }

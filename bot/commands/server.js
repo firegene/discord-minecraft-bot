@@ -1,7 +1,11 @@
 const ms = require("../lib/minestat");
+const random = require("../lib/random");
 const settings = require('../lib/options')('server');
 
 settings.define('showPlayercount', 'boolean', false);
+settings.define('fuzzPlayercount', 'number', 5).then(() => {
+  settings.addFilter('fuzzPlayercount', (val) => val >= 0, 'Value must be positive');
+});
 
 async function serverStatus(msg, args, command, client) {
   await new Promise(resolve => ms.init('198.50.141.83', 25565, (a) => resolve(a)));
@@ -37,7 +41,12 @@ async function serverStatus(msg, args, command, client) {
     }
   };
   if (settings.get('showPlayercount')) {
-    message.embed.fields.push({name: "Players online", value: ms.current_players})
+    let fuzzStrength = settings.get('fuzzPlayercount');
+    let playerCount = Number(ms.current_players);
+    if(fuzzStrength > 0) {
+      playerCount = "approximately " + Math.round(random.getApproximate(playerCount, fuzzStrength));
+    }
+    message.embed.fields.push({name: "Players online", value: playerCount})
   }
   msg.channel.send(message);
 }
