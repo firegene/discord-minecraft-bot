@@ -1,27 +1,10 @@
-Welcome to Glitch
+Patchie's clone of firegene-discord-bot
 =================
+A clone of firegene's project so i can work on it and test ideas without breaking things
 
-Click `Show` in the header to see your app live. Updates to your code will instantly deploy and update live.
+## Glitch project
+This version of the bot is hosted (but not kept alive) on glitch [here](https://fg-fc-bot-gitsync.glitch.me/)  
+The project is automatically synced up to this repository (specifically the `master` branch)
 
-**Glitch** is the friendly community where you'll build the app of your dreams. Glitch lets you instantly create, remix, edit, and host an app, bot or site, and you can invite collaborators or helpers to simultaneously edit code with you.
-
-Find out more [about Glitch](https://glitch.com/about).
-
-
-Your Project
-------------
-
-On the front-end,
-- edit `public/client.js`, `public/style.css` and `views/index.html`
-- drag in `assets`, like images or music, to add them to your project
-
-On the back-end,
-- your app starts at `server.js`
-- add frameworks and packages in `package.json`
-- safely store app secrets in `.env` (nobody can see this but you and people you invite)
-
-
-Made by [Fog Creek](https://fogcreek.com/)
--------------------
-
-\ ゜o゜)ノ
+To invite the bot to your server for testing, use this [invite link](https://discordapp.com/oauth2/authorize?&client_id=NDY5OTM1ODU2MjcwOTY2ODI0.Dn2OBA.O9O7b4Lj4F9LNg-h8LgXGyrex4g&scope=bot&permissions=0)  
+To make him leave, use the command `!leave @MentionTheBot`
