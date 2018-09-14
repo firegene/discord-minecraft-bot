@@ -58,8 +58,9 @@ for(let key of keys){
 
   app.use("/extension", BrowserExtensionAPI.app);
   app.use("/options", optionsApp);
+  app.use("/static", express.static('./bot/static_html'));
   app.use("/api/news", NewsAPI);
-  app.use('/', docs)
+  app.use('/', docs);
 
   app.listen(process.env.PORT, function(){
       console.log(`Express listening on ${process.env.PORT}`)
@@ -144,7 +145,7 @@ for(let key of keys){
                 "**news** - gets the most recent post from news and announcements\n" +
                 "**vote** - gives all voting links\n" +
                 "**name <@user>** - views the users set ingame name\n" +
-                "**setname** - sets the users ingame name",
+                "**setname** - sets the users ingame name" +
                 "**restart** - gives the time until next server restart"
             },
             {
