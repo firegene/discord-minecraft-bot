@@ -1,17 +1,15 @@
 let BrowserExtensionAPI = require('../lib/browser-extension');
 let moment = require('moment');
 
-function showNews(msg, args, command, client) {
+function news_blame(msg, args, command, client){
+  msg.channel.send("Most recent news uploaded by: " + BrowserExtensionAPI.getBlame().split(".")[0] + " " + moment(BrowserExtensionAPI.getBlameDate()).fromNow());
+}
+function news_count(msg, args, command, client){
   let posts = BrowserExtensionAPI.getPosts();
-  if (args[0] === "blame") {
-    msg.channel.send("Most recent news uploaded by: " + BrowserExtensionAPI.getBlame().split(".")[0] + " " + moment(BrowserExtensionAPI.getBlameDate()).fromNow());
-    return;
-  }
-  if (args[0] === "count") {
-    msg.channel.send("There are " + posts.length + " news articles on the first page");
-    return;
-  }
-  if (args[0] === "all") {
+  msg.channel.send("There are " + posts.length + " news articles on the first page");
+}
+function news_all(msg, args, command, client){
+  let posts = BrowserExtensionAPI.getPosts();
     let out = "All news on the first page:\n";
     let index = 1;
     for (let post of posts) {
@@ -19,27 +17,20 @@ function showNews(msg, args, command, client) {
       index++
     }
     msg.channel.send(out);
-    return;
-  }
-  if (args[0] === "article") {
-    function isNumeric(n) {
-      return !isNaN(parseFloat(n)) && isFinite(n);
-    }
-
-    if (Number.isInteger(args[1])) {
+}
+function news_article(msg, args, command, client){
+    let posts = BrowserExtensionAPI.getPosts();
+    let articleNr = args[0];
+    if (Number.isInteger(articleNr)) {
       msg.channel.send('Please specify which article to display.');
       return;
     }
-    let index = Number(args[1]) - 1;
-    if (args[1] < 1 || posts.length < args[1]) {
+    let index = Number(articleNr) - 1;
+    if (isNaN(index) || articleNr < 1 || posts.length < articleNr) {
       msg.channel.send(`Please specify a valid article to display. There are currently ${posts.length} news articles on the first page.`);
       return;
     }
 
-
-    if (isNaN(index)) {
-      msg.channel.send(`Please specify a valid article to display. There are currently ${posts.length} news articles on the first page.`)
-    }
     var post = posts[index];
     msg.channel.send({
       "embed": {
@@ -58,8 +49,12 @@ function showNews(msg, args, command, client) {
         }]
       }
     });
-    return;
-  }
 }
 
-module.exports = showNews;
+
+module.exports = {
+  all: news_all,
+  article: news_article,
+  blame: news_blame,
+  count: news_count
+};

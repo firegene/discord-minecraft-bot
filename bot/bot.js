@@ -75,10 +75,6 @@ client.on("message", async (msg) => {
   // Ignore any messages that don't start with the prefix
   if (msg.content.indexOf(prefix) !== 0) return;
 
-  // Separate the message into command and arguments parts
-  const args = msg.content.slice(prefix.length).trim().split(/ +/g);
-  const command = args.shift().toLowerCase();
-
   // Available commands
   const commands = {
     "userid": (msg) => {
@@ -103,7 +99,10 @@ client.on("message", async (msg) => {
     "setname": nicknameCommands.setName,
     "name": nicknameCommands.getName,
 
-    "news": command_news,
+    "news all": command_news.all,
+    "news article": command_news.article,
+    "news blame": command_news.blame,
+    "news count": command_news.count,
     "restarttime": minecraftServerCommands.restartTime,
 
     // ADD COMMANDS HERE
@@ -152,14 +151,25 @@ client.on("message", async (msg) => {
     }
   };
 
-  // If the command is not in the list, give an error message
-  // if it is, run it
-  let handler = commands[command];
-  if (handler === undefined) {
+  // Separate the message into command and arguments parts
+  const message = msg.content.slice(prefix.length).trim();
+
+  let key = "";
+  for(let candidate of Object.keys(commands)){
+    let isCommand = (message.startsWith(candidate+" ") || message === candidate);
+    let isLonger = key.length < candidate.length;
+    if(isCommand && isLonger){
+      key = candidate;
+    }
+  }
+  let args = message.slice(key.length+1).split(/ +/g);
+
+  // Run the command
+  let handler = commands[key];
+  if (handler === undefined) { // Unless it didn't match anything
     return;
   }
-  handler(msg, args, command, client);
-
+  handler(msg, args, key, client);
 
 });
 // endregion discord
