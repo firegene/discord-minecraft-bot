@@ -1,0 +1,32 @@
+body {
+    background-color: snow;
+}
+.error {color: red;}
+.success {color:green;}
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.container > button {
+    margin: 1em;
+}
+
+.master {
+    flex-direction: row;
+}
+
+.sub {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    margin: 2em;
+    padding: 1em;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+}
+
+.sub:hover {
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+}

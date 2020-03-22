@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "bot/bot.js",
+
   "scripts": {
-    "start": "node bot/bot.js"
+    "start": "./before_run.sh; node bot/bot.js",
+    "debug": "./before_run.sh; node $NODE_DEBUG_OPTION bot/bot.js"
   },
   "repository": {
     "type": "git",
@@ -16,6 +18,8 @@
     "url": "https://github.com/firegene/discord-minecraft-bot/issues"
   },
   "homepage": "https://github.com/firegene/discord-minecraft-bot#readme",
+
+  "_comment1": "//// Intentionally an older version on enmap-level because the newer one tries executing SQL (we do not have an SQL database)",
   "dependencies": {
     "discord.js": "^11.3.2",
     "snekfetch": "^4.0.4",

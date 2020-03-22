@@ -1,36 +1,53 @@
 const ms = require("../lib/minestat");
+const random = require("../lib/random");
+const settings = require('../lib/options')('server');
 
+settings.define('showPlayercount', 'boolean', false);
+settings.define('fuzzPlayercount', 'number', 5).then(() => {
+  settings.addFilter('fuzzPlayercount', (val) => val >= 0, 'Value must be positive');
+});
 function serverStatus(msg, args, command, client) {
     ms.init('198.50.141.83', 25565, function (result) {
         console.log("Minecraft server status of " + ms.address + " on port " + ms.port + ":");
         if (ms.online) {
-            msg.channel.send({
-                "embed": {
-                    "url": "https://discordapp.com",
-                    "color": 1234643,
-                    "thumbnail": {
-                        "url": "https://api.minetools.eu/favicon/198.50.141.83/25565"
-                    },
-                    "author": {
-                        "name": "SwancraftMC",
-                        "url": "https://www.swancraftmc.com/"
-                    },
-                    "fields": [
-                        {
-                            "name": "Server status",
-                            "value": "Online ✓"
-                        },
-                        {
-                            "name": "Server IP",
-                            "value": "play.swancraftmc.com"
-                        },
-                        {
-                            "name": "Server version",
-                            "value": ms.version
-                        }
-                    ]
+          let message = {
+            "embed": {
+              "url": "https://discordapp.com",
+              "color": 1234643,
+              "thumbnail": {
+                "url": "https://api.minetools.eu/favicon/198.50.141.83/25565"
+              },
+              "author": {
+                "name": "SwancraftMC",
+                "url": "https://www.swancraftmc.com/"
+              },
+              "fields": [
+                {
+                  "name": "Server status",
+                  "value": "Online ✓"
+                },
+                {
+                  "name": "Server IP",
+                  "value": "play.swancraftmc.com"
+                },
+                {
+                  "name": "Server version",
+                  "value": ms.version
                 }
-            });
+              ]
+            }
+          };
+
+          if (settings.get('showPlayercount')) {
+            let fuzzStrength = settings.get('fuzzPlayercount');
+            let playerCount = Number(ms.current_players);
+            if(fuzzStrength > 0) {
+              playerCount = "approximately " + Math.round(random.getApproximate(playerCount, fuzzStrength));
+            }
+            message.embed.fields.push({name: "Players online", value: playerCount})
+          }
+
+          msg.channel.send(message);
         }
         else {
             msg.channel.send("Server is offline. Please try again later.");
@@ -46,7 +63,7 @@ function restartTime(msg, args, command, client){
     next = new Date(args[0]);
   }
   // That same time, but yesterday, there must have been a restart, let's set 'next' to be that restart from yesterday
-  next.setYear(now.getYear()+1900) // add 1900 because getYear gives us years since UNIX epoch, while getYear expects a full year
+  next.setFullYear(now.getFullYear());
   next.setMonth(now.getMonth())
   next.setDate(now.getDate()-1); // Yesterday to make sure the new moment is in the past
   
@@ -55,12 +72,12 @@ function restartTime(msg, args, command, client){
   while (next < now) {
     next.setTime(next.getTime() + 1000 * 60 * 60 * 12);
     limit -= 1;
-    if(limit == 0){
+    if(limit <= 0){
       throw "Something's wrong with the restart time calculation!";
     }
   }
   // AT THIS POINT, "next" CONTAINS THE DATETIME OF THE NEXT RESTART
-  
+
   let diff = next.getTime() - now.getTime();
   let seconds = (diff / 1000);
   let minutes = seconds / 60;

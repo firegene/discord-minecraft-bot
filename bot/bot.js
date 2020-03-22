@@ -14,6 +14,9 @@ const nicknameCommands = require('./commands/discordNames');
 const command_news = require('./commands/news');
 const safeEval = require('./commands/highlySafeEval');
 const FileReader = require('./lib/FileReader');
+const command_options = require('./commands/options');
+const optionsApp = require('./lib/options').express;
+const NSFW = require('./lib/nsfw-filter');
 
 const BrowserExtensionAPI = require('./lib/browser-extension.js')
 const NewsAPI = require('../api/news/news');
@@ -38,22 +41,31 @@ for(let key of keys){
       res.send('I am running!');
   });
 
-app.get('/restart', async function (req, res) {
-  try {
-    res.send(await FileReader.read('./site/restart.html'))
-  } catch(e){
-    console.error(e);
-  }
-});
+  /** Disable caching to make sure updates to the code show up in the browser*/
+  app.use("/", (req, res, next) => {
+    res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+    res.header('Expires', '-1');
+    res.header('Pragma', 'no-cache');
+    next();
+  });
+  app.get('/restart', async function (req, res) {
+    try {
+      res.send(await FileReader.read('./site/restart.html'))
+    } catch(e){
+      console.error(e);
+    }
+  });
 
   app.use("/extension", BrowserExtensionAPI.app);
+  app.use("/options", optionsApp);
+  app.use("/static", express.static('./bot/static_html'));
   app.use("/api/news", NewsAPI);
-  app.use('/', docs)
+  app.use('/', docs);
 
-app.listen(process.env.PORT, function(){
+  app.listen(process.env.PORT, function(){
       console.log(`Express listening on ${process.env.PORT}`)
   });
-// endregion express 
+// endregion express
 
 
 // region discord
@@ -66,100 +78,122 @@ app.listen(process.env.PORT, function(){
       if (msg.author.bot) return;
 
       // Instaban any users who post NSFW
-      let msgContainsNSFW = nsfw.some(word => msg.content.toLowerCase().includes(word));
-      if (msg.author.bannable && msgContainsNSFW) {
-          msg.delete();
-          msg.guild.ban(msg.author);
-          return;
+      let msgContainsBlacklistedWord = nsfw.some(word => msg.content.toLowerCase().includes(word));
+      if (msg.author.bannable && msgContainsBlacklistedWord) {
+        msg.delete();
+        msg.guild.ban(msg.author);
+        return;
       }
-
+      let clarifaiRating = 0;
+      let embeds = msg.embeds.filter(e => e.type === 'image').map(e => e.url).concat(msg.attachments.map(a => a.url));
+      if (embeds.length > 0) {
+        let ratings = await NSFW(embeds);
+        clarifaiRating = Math.max.apply(this, ratings);
+      }
+      if(clarifaiRating > 0.5){
+        // TODO: Inform the admins or something;
+      }
       // Ignore any messages that don't start with the prefix
       if (msg.content.indexOf(prefix) !== 0) return;
 
-      // Separate the message into command and arguments parts
-      const args = msg.content.slice(prefix.length).trim().split(/ +/g);
-      const command = args.shift().toLowerCase();
+  // Available commands
+  const commands = {
+    "userid": (msg) => {
+      msg.channel.send(msg.author.id);
+    },
+    "server": minecraftServerCommands.serverStatus,
+    "phistory": command_playerMcNameHistory,
+    "vote": command_voteLinks,
 
-      // Available commands
-      const commands = {
-          "server": minecraftServerCommands.serverStatus,
-          "phistory": command_playerMcNameHistory,
-          "vote": command_voteLinks,
+    "options": command_options,
+    "botping": selfCommands.ping,
+    "leave": selfCommands.leave,
+    "eval": safeEval,
 
-          "botping" : selfCommands.ping,
-          "leave": selfCommands.leave,
-          "eval": safeEval,
+    "ban": moderationCommands.banPlayer,
+    "kick": moderationCommands.kickPlayer,
+    "warn": moderationCommands.warnPlayer,
+    "view-warns": moderationCommands.showWarns,
+    "delwarn": moderationCommands.removeWarn,
+    "delallwarns": moderationCommands.removeAllWarns,
 
-          "ban": moderationCommands.banPlayer,
-          "kick": moderationCommands.kickPlayer,
-          "warn": moderationCommands.warnPlayer,
-          "view-warns": moderationCommands.showWarns,
-          "delwarn": moderationCommands.removeWarn,
-          "delallwarns": moderationCommands.removeAllWarns,
+    "setname": nicknameCommands.setName,
+    "name": nicknameCommands.getName,
 
-          "setname": nicknameCommands.setName,
-          "name": nicknameCommands.getName,
+    "news all": command_news.all,
+    "news article": command_news.article,
+    "news blame": command_news.blame,
+    "news count": command_news.count,
+    "restart": minecraftServerCommands.restartTime,
 
-          "news": command_news,
-          "restart": minecraftServerCommands.restartTime,
-        
-          // ADD COMMANDS HERE
-        
-          "listcommands": (msg) => msg.channel.sendCode(Object.keys(commands).join("\n")),
-          "help": (msg) => {
-              msg.channel.send({
-                  "embed": {
-                      "color": 1234643,
-                      "author": {
-                          "name": "Help Menu"
-                      },
-                      "fields": [
-                          {
-                              "name": "Server Commands",
-                              "value":
-                              "**server** - gives current info about the server.\n" +
-                              "**phistory <name>** - lists every name a player has used\n" +
-                              "**news** - gets the most recent post from news and announcements\n" +
-                              "**vote** - gives all voting links\n" +
-                              "**name <@user>** - views the users set ingame name\n" +
-                              "**setname** - sets the users ingame name\n" +
-                              "**restart** - gives the time until next server restart"
-                          },
-                          {
-                          
-                              "name": "Bot Commands",
-                              "value":
-                              "**botping** - gives the current ping of the bot\n" +
-                              "**leave <@user>** - If @user is the bot itself, leaves the server\n" +
-                              "**help** - Shows this help page\n" +
-                              "**listcommands** - Lists all the commands that are registered, useful for debugging if the **help** text is out of date",
-                          },
-                          {
-                              "name": "Moderation Commands ",
-                              "value":
-                              "**kick <id>** - kicks a user from the discord\n" +
-                              "**ban <id>** - bans a user from the discord\n" +
-                              "**warn <@user>** - warns the mentioned user\n" +
-                              "**view-warns <@user>** - views the mentioned user's warnings\n" +
-                              "**delwarn <@user> <warn number>** - deletes the specified warning from the mentioned user\n" +
-                              "**delallwarns** - deletes all warns for the mentioned user"
-                          }
-                      ]
-                  }
-              })
-          }
-      };
+    // ADD COMMANDS HERE
 
-      // If the command is not in the list, give an error message
-      // if it is, run it
-      let handler = commands[command];
-      if(handler === undefined) {
-          return;
-      }
-      handler(msg, args, command, client);
+    "listcommands": (msg) => msg.channel.send(`\`\`\`${Object.keys(commands).join("\n")}\`\`\``),
+    "help": (msg) => {
+      msg.channel.send({
+        "embed": {
+          "color": 1234643,
+          "author": {
+            "name": "Help Menu"
+          },
+          "fields": [
+            {
+              "name": "Server Commands",
+              "value":
+                "**server** - gives current info about the server.\n" +
+                "**phistory <name>** - lists every name a player has used\n" +
+                "**news** - gets the most recent post from news and announcements\n" +
+                "**vote** - gives all voting links\n" +
+                "**name <@user>** - views the users set ingame name\n" +
+                "**setname** - sets the users ingame name" +
+                "**restart** - gives the time until next server restart"
+            },
+            {
 
+              "name": "Bot Commands",
+              "value":
+                "**botping** - gives the current ping of the bot\n" +
+                "**leave <@user>** - If @user is the bot itself, leaves the server\n" +
+                "**help** - Shows this help page\n" +
+                "**listcommands** - Lists all the commands that are registered, useful for debugging if the **help** text is out of date",
+            },
+            {
+              "name": "Moderation Commands ",
+              "value":
+                "**kick <id>** - kicks a user from the discord\n" +
+                "**ban <id>** - bans a user from the discord\n" +
+                "**warn <@user>** - warns the mentioned user\n" +
+                "**view-warns <@user>** - views the mentioned user's warnings\n" +
+                "**delwarn <@user> <warn number>** - deletes the specified warning from the mentioned user\n" +
+                "**delallwarns** - deletes all warns for the mentioned user"
+            }
+          ]
+        }
+      })
+    }
+  };
 
-  });
+  // Separate the message into command and arguments parts
+  const message = msg.content.slice(prefix.length).trim();
+
+  let key = "";
+  for(let candidate of Object.keys(commands)){
+    let isCommand = (message.startsWith(candidate+" ") || message === candidate);
+    let isLonger = key.length < candidate.length;
+    if(isCommand && isLonger){
+      key = candidate;
+    }
+  }
+  let args = message.slice(key.length+1).split(/ +/g);
+
+  // Run the command
+  let handler = commands[key];
+  if (handler === undefined) { // Unless it didn't match anything
+    return;
+  }
+  handler(msg, args, key, client);
+
+});
 // endregion discord
 
 client.login(process.env.DISCORD_API_TOKEN);
